@@ -11,32 +11,33 @@ func main() {
 	if ferr != nil {
 		panic(ferr)
 	}
-
+	
 	str := string(file)
+	
+	numCharacter(str)
+
+	numLines(str)
+	numVowels(str)
+	numDigits(str)
+	numSpecialCharacter(str)
+	numSymboles(str)
+	numPunctuation(str)
+	numWord(str)
+	numSpaces(str)
+	numParagraph(str)
 	
 	
 	timeStart := time.Now()
 	
-	go numCharacter(str)
-	go numLines(str)
-	go numVowels(str)
-	go numDigits(str)
-	go numSpecialCharacter(str)
-	go numSymboles(str)
-	go numPunctuation(str)
-	go numWord(str)
-	go numSpaces(str)
-	go numParagraph(str)
-	go combineFunc(str)
+	combineFunc(str)
+
 	
-	time.Sleep(1 * time.Second)
+	time.Sleep(time.Second)
 	
 	takenTime := time.Since(timeStart)
 	fmt.Printf("time: %v \n", takenTime)
 	
-
 	
-
 }
 
 // Number of character -----------------------------------------------------------------------
@@ -170,44 +171,25 @@ func numParagraph(str string) {
 
 func combineFunc(str string) {
 	data := make(map[string]int)
-	data["lines"] = 0
-	data["vowels"] = 0
-	data["digits"] = 0
-	data["specialCharacters"] = 0
-	data["symboles"] = 0
-	data["punctuation"] = 0
-	data["words"] = 0
-	data["spaces"] = 0
-	data["paragraph"] = 0
 
 	
 	for _, ch := range str {
 
 		if ch == rune(' ') {
 			data["spaces"]++
-		}
-		if ch == rune(' ') || ch == rune('\n') {
+		} else if ch == rune(' ') || ch == rune('\n') {
 			data["words"]++
-		}
-		if ch == rune(';') || ch == rune(':') || ch == rune('\'') || ch == rune('"') || ch == rune(',') || ch == rune('.') || ch == rune('?') {
+		} else if ch == rune(';') || ch == rune(':') || ch == rune('\'') || ch == rune('"') || ch == rune(',') || ch == rune('.') || ch == rune('?') {
 			data["punctuation"]++
-		}
-		if ch == rune('[') || ch == rune(']') || ch == rune('{') || ch == rune('}') || ch == rune('(') || ch == rune(')') || ch == rune('|') || ch == rune('\\') || ch == rune('/') || ch == rune('+') || ch == rune('=') || ch == rune('<') || ch == rune('>') {
+		}else if ch == rune('[') || ch == rune(']') || ch == rune('{') || ch == rune('}') || ch == rune('(') || ch == rune(')') || ch == rune('|') || ch == rune('\\') || ch == rune('/') || ch == rune('+') || ch == rune('=') || ch == rune('<') || ch == rune('>') {
 			data["symboles"]++
-		}
-		if ch == rune('!') || ch == rune('@') || ch == rune('#') || ch == rune('$') || ch == rune('%') || ch == rune('^') || ch == rune('&') || ch == rune('*') || ch == rune('~') {
+		}else if ch == rune('!') || ch == rune('@') || ch == rune('#') || ch == rune('$') || ch == rune('%') || ch == rune('^') || ch == rune('&') || ch == rune('*') || ch == rune('~') {
 			data["specialCharacters"]++
-		}
-		if ch == rune('0') || ch == rune('1') || ch == rune('2') || ch == rune('3') || ch == rune('4') || ch == rune('5') || ch == rune('6') || ch == rune('7') || ch == rune('8') || ch == rune('9') {
+		}else if ch == rune('0') || ch == rune('1') || ch == rune('2') || ch == rune('3') || ch == rune('4') || ch == rune('5') || ch == rune('6') || ch == rune('7') || ch == rune('8') || ch == rune('9') {
 			data["digits"]++
-		}
-		if ch == rune('a') || ch == rune('e') || ch == rune('i') || ch == rune('o') || ch == rune('u') {
+		}else if ch == rune('a') || ch == rune('e') || ch == rune('i') || ch == rune('o') || ch == rune('u') {
 			data["vowels"]++
-		}
-		if ch == rune('.') {
-			data["lines"]++
-		}
-		if ch == rune('\n') {
+		}else if ch == rune('\n') {
 			data["paragraph"]++
 		}
 	}
