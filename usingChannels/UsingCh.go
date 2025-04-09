@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"time"
+	"sync"
 )
 
 func main() {
@@ -16,21 +17,33 @@ func main() {
 
 	str := string(file)
 
-	// ch := make(chan map[string]int)
-	// dividedFile := []int{5318003, 10636006, 15954009, 21272012}
+	chunkelen := [4]int{}
+	for i := 0; i < 4; i++ {
+		if i == 0 {
+			chunkelen[i] = len(str) / 4
+		} else {
+			chunkelen[i]= chunkelen[i-1]+ chunkelen[0]
 
-	// for i := 0; i < len(dividedFile); i++ {
-	// 	if i == 0 {
-	// 		go Chunke(str, 0, dividedFile[i])
-	// 	}else {
-	// 		go Chunke(str, dividedFile[i-1], dividedFile[i])
-	// 	}
+		}
+	}
 
-	// }
-	go Chunke(str,0,5318003 )
-	go Chunke(str,5318003,10636006 )
-	go Chunke(str,10636006,15954009 )
-	go Chunke(str,15954009,21272012 )
+	var wg sync.WaitGroup
+
+	for i := 0; i < 4; i++ {
+		wg.Add(1)
+		go func()  {
+			defer wg.Done()
+			if i==0 {
+				Chunke(str,0,chunkelen[0])
+			}
+			
+		}()
+	}
+	
+	go Chunke(str, 0, chunkelen[0])
+	go Chunke(str, chunkelen[0], chunkelen[1])
+	go Chunke(str, chunkelen[1], chunkelen[2])
+	go Chunke(str, chunkelen[2], chunkelen[3])
 
 	// received := <-ch
 
@@ -45,40 +58,42 @@ func main() {
 
 func Chunke(str string, start int, length int) {
 
-	data := make(map[string]int)
+	chunkeData := make(map[string]int)
 
 	for i := start; i < length; i++ {
-		data["character"]++
+		chunkeData["character"]++
 		if str[i] == (' ') {
-			data["spaces"]++
+			chunkeData["spaces"]++
 		}
 		if str[i] == (' ') || str[i] == ('\n') {
-			data["words"]++
+			chunkeData["words"]++
 		}
 		if str[i] == (';') || str[i] == (':') || str[i] == ('\'') || str[i] == ('"') || str[i] == (',') || str[i] == ('.') || str[i] == ('?') {
-			data["punctuation"]++
+			chunkeData["punctuation"]++
 		}
 		if str[i] == ('[') || str[i] == (']') || str[i] == ('{') || str[i] == ('}') || str[i] == ('(') || str[i] == (')') || str[i] == ('|') || str[i] == ('\\') || str[i] == ('/') || str[i] == ('+') || str[i] == ('=') || str[i] == ('<') || str[i] == ('>') {
-			data["symboles"]++
+			chunkeData["symboles"]++
 		}
 		if str[i] == ('!') || str[i] == ('@') || str[i] == ('#') || str[i] == ('$') || str[i] == ('%') || str[i] == ('^') || str[i] == ('&') || str[i] == ('*') || str[i] == ('~') {
-			data["specialstr[i]aracters"]++
+			chunkeData["specialstr[i]aracters"]++
 		}
 		if str[i] == ('0') || str[i] == ('1') || str[i] == ('2') || str[i] == ('3') || str[i] == ('4') || str[i] == ('5') || str[i] == ('6') || str[i] == ('7') || str[i] == ('8') || str[i] == ('9') {
-			data["digits"]++
+			chunkeData["digits"]++
 		}
 		if str[i] == ('a') || str[i] == ('e') || str[i] == ('i') || str[i] == ('o') || str[i] == ('u') {
-			data["vowels"]++
+			chunkeData["vowels"]++
 		}
 		if str[i] == ('.') {
-			data["lines"]++
+			chunkeData["lines"]++
 		}
 		if str[i] == ('\n') {
-			data["paragraph"]++
+			chunkeData["paragraph"]++
 		}
 	}
 
-	// ch <- data
-	fmt.Println(data)
+	// ch <- chunkeData
+	fmt.Println(chunkeData)
+	time.Sleep(time.Second)
+
 
 }
