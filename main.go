@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"time"
 )
 
 func main() {
@@ -12,18 +13,29 @@ func main() {
 	}
 
 	str := string(file)
+	
+	
+	timeStart := time.Now()
+	
+	go numCharacter(str)
+	go numLines(str)
+	go numVowels(str)
+	go numDigits(str)
+	go numSpecialCharacter(str)
+	go numSymboles(str)
+	go numPunctuation(str)
+	go numWord(str)
+	go numSpaces(str)
+	go numParagraph(str)
+	go combineFunc(str)
+	
+	time.Sleep(1 * time.Second)
+	
+	takenTime := time.Since(timeStart)
+	fmt.Printf("time: %v \n", takenTime)
+	
 
-	numCharacter(str)
-	numLines(str)
-	numVowels(str)
-	numDigits(str)
-	numSpecialCharacter(str)
-	numSymboles(str)
-	numPunctuation(str)
-	numWord(str)
-	numSpaces(str)
-	numParagraph(str)
-	combineFunc(str)
+	
 
 }
 
