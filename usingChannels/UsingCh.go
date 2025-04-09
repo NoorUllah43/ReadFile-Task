@@ -34,16 +34,19 @@ func main() {
 		go func()  {
 			defer wg.Done()
 			if i==0 {
-				Chunke(str,0,chunkelen[0])
+				Chunke(str,0,chunkelen[i])
+			}else {
+				go Chunke(str, chunkelen[i-1], chunkelen[i])
+				
 			}
 			
 		}()
 	}
 	
-	go Chunke(str, 0, chunkelen[0])
-	go Chunke(str, chunkelen[0], chunkelen[1])
-	go Chunke(str, chunkelen[1], chunkelen[2])
-	go Chunke(str, chunkelen[2], chunkelen[3])
+	// go Chunke(str, 0, chunkelen[0])
+	// go Chunke(str, chunkelen[0], chunkelen[1])
+	// go Chunke(str, chunkelen[1], chunkelen[2])
+	// go Chunke(str, chunkelen[2], chunkelen[3])
 
 	// received := <-ch
 
