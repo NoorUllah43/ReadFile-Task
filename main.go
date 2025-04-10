@@ -12,7 +12,7 @@ import (
 func main() {
 
 	// reading the file
-	file, ferr := os.ReadFile("../file.txt")
+	file, ferr := os.ReadFile("file.txt")
 	if ferr != nil {
 		panic(ferr)
 	}
