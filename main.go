@@ -3,75 +3,87 @@ package main
 import (
 	"fmt"
 	"os"
-	"time"
 	"readFile-task/Combinefunc"
+	"time"
 	// "readFile-task/Separatefuncs"
 	"sync"
-	
 )
 
 func main() {
-	file, ferr := os.ReadFile("file.txt")
+
+	// reading the file
+	file, ferr := os.ReadFile("../file.txt")
 	if ferr != nil {
 		panic(ferr)
 	}
 
+	// convert the buffer into string
 	str := string(file)
 
-	chunkelen := [4]int{}
-	for i := 0; i < 4; i++ {
+	// make the chunking size and store it in chunklen
+	// chunks := [4]int{}
+	totalChunks := 4
+	chunks := make([]int, totalChunks)
+
+	for i := 0; i < totalChunks; i++ {
 		if i == 0 {
-			chunkelen[i] = len(str) / 4
+			chunks[0] = len(str) / totalChunks
 		} else {
-			chunkelen[i] = chunkelen[i-1] + chunkelen[0]
+			chunks[i] = chunks[i-1] + chunks[0]
 
 		}
 	}
 
+	fmt.Printf("\n\n ------------- using gorutines ----------------\n")
+
 	var wg sync.WaitGroup
 
-	wg.Add(4)
-	ch1 := make(chan map[string]int,1)
-	ch2 := make(chan map[string]int,1)
-	ch3 := make(chan map[string]int,1)
-	ch4 := make(chan map[string]int,1)
-
 	
+	ch1 := make(chan map[string]int, 1)
+	ch2 := make(chan map[string]int, 1)
+	ch3 := make(chan map[string]int, 1)
+	ch4 := make(chan map[string]int, 1)
+
 	rutineTime := time.Now()
+	wg.Add(4)
 
-	
-	
-
-	
-
-	go Chunke(str, 0, chunkelen[0], &wg, ch1)
-	go Chunke(str, chunkelen[0], chunkelen[1], &wg, ch2)
-	go Chunke(str, chunkelen[1], chunkelen[2], &wg, ch3)
-	go Chunke(str, chunkelen[2], chunkelen[3], &wg, ch4)
-
+	go Chunke(str, 0, chunks[0], &wg, ch1)
+	go Chunke(str, chunks[0], chunks[1], &wg, ch2)
+	go Chunke(str, chunks[1], chunks[2], &wg, ch3)
+	go Chunke(str, chunks[2], chunks[3], &wg, ch4)
 
 	time.Sleep(time.Second)
 
 	takenTimeRutine := time.Since(rutineTime)
 
 	wg.Wait()
-	fmt.Printf("execution time of gorutines: %v \n", takenTimeRutine)
 
 	data := make(map[string]int)
-
 
 	receivedData1 := <-ch1
 	receivedData2 := <-ch2
 	receivedData3 := <-ch3
 	receivedData4 := <-ch4
 
-
-	for key,value := range receivedData1 {
+	// add all receiving data and store it in data map
+	for key, value := range receivedData1 {
 		data[key] = value + receivedData2[key] + receivedData3[key] + receivedData4[key]
 	}
 
 	fmt.Println(data)
-	
+	fmt.Printf("execution time of gorutines: %v \n", takenTimeRutine)
+
+	fmt.Printf("\n\n ------------- using combine function ----------------\n")
+
+	timeStart := time.Now()
+
+	Combinefunc.Combine(str)
+
+	time.Sleep(time.Second)
+
+	takenTime := time.Since(timeStart)
+	fmt.Printf("execution time of combine fucntion: %v \n", takenTime)
+
 	// Separatefuncs.NumCharacter(str)
 	// Separatefuncs.NumLines(str)
 	// Separatefuncs.NumDigits(str)
@@ -83,19 +95,7 @@ func main() {
 	// Separatefuncs.NumVowels(str)
 	// Separatefuncs.NumWord(str)
 
-
-	timeStart := time.Now()
-
-	Combinefunc.Combine(str)
-	
-
-	time.Sleep(time.Second)
-
-	takenTime := time.Since(timeStart)
-	fmt.Printf("execution time of combine fucntion: %v \n", takenTime)
-
 }
-
 
 func Chunke(str string, start int, length int, wg *sync.WaitGroup, ch chan map[string]int) {
 	defer wg.Done()
@@ -103,9 +103,15 @@ func Chunke(str string, start int, length int, wg *sync.WaitGroup, ch chan map[s
 	chunkeData := make(map[string]int)
 
 	for i := start; i < length; i++ {
-		chunkeData["character"]++
+		// chunkeData["character"]++
 		if str[i] == (' ') {
 			chunkeData["spaces"]++
+		}
+		if str[i] == ('.') {
+			chunkeData["lines"]++
+		}
+		if str[i] == ('\n') {
+			chunkeData["paragraph"]++
 		}
 		if str[i] == (' ') || str[i] == ('\n') {
 			chunkeData["words"]++
@@ -124,12 +130,6 @@ func Chunke(str string, start int, length int, wg *sync.WaitGroup, ch chan map[s
 		}
 		if str[i] == ('a') || str[i] == ('e') || str[i] == ('i') || str[i] == ('o') || str[i] == ('u') {
 			chunkeData["vowels"]++
-		}
-		if str[i] == ('.') {
-			chunkeData["lines"]++
-		}
-		if str[i] == ('\n') {
-			chunkeData["paragraph"]++
 		}
 	}
 
