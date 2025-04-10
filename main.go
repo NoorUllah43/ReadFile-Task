@@ -37,14 +37,26 @@ func main() {
 	ch4 := make(chan map[string]int,1)
 
 	
+	rutineTime := time.Now()
+
+	
+	
+
+	
 
 	go Chunke(str, 0, chunkelen[0], &wg, ch1)
 	go Chunke(str, chunkelen[0], chunkelen[1], &wg, ch2)
 	go Chunke(str, chunkelen[1], chunkelen[2], &wg, ch3)
 	go Chunke(str, chunkelen[2], chunkelen[3], &wg, ch4)
-	
+
+
+	time.Sleep(time.Second)
+
+	takenTimeRutine := time.Since(rutineTime)
 
 	wg.Wait()
+	fmt.Printf("execution time of gorutines: %v \n", takenTimeRutine)
+
 	data := make(map[string]int)
 
 
@@ -80,7 +92,7 @@ func main() {
 	time.Sleep(time.Second)
 
 	takenTime := time.Since(timeStart)
-	fmt.Printf("time: %v \n", takenTime)
+	fmt.Printf("execution time of combine fucntion: %v \n", takenTime)
 
 }
 

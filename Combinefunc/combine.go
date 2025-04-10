@@ -6,6 +6,7 @@ func Combine(str string)  {
 	data := make(map[string]int)
 
 	for _, ch := range str {
+		
 
 		if ch == rune(' ') {
 			data["spaces"]++
