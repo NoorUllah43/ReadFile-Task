@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"os"
-	"time"
 	"sync"
+	"time"
 )
 
 func main() {
@@ -22,44 +22,45 @@ func main() {
 		if i == 0 {
 			chunkelen[i] = len(str) / 4
 		} else {
-			chunkelen[i]= chunkelen[i-1]+ chunkelen[0]
+			chunkelen[i] = chunkelen[i-1] + chunkelen[0]
 
 		}
 	}
 
 	var wg sync.WaitGroup
 
-	for i := 0; i < 4; i++ {
-		wg.Add(1)
-		go func()  {
-			defer wg.Done()
-			if i==0 {
-				Chunke(str,0,chunkelen[i])
-			}else {
-				go Chunke(str, chunkelen[i-1], chunkelen[i])
-				
-			}
-			
-		}()
-	}
+	wg.Add(4)
+	ch1 := make(chan map[string]int,1)
+	ch2 := make(chan map[string]int,1)
+	ch3 := make(chan map[string]int,1)
+	ch4 := make(chan map[string]int,1)
+
+	go Chunke(str, 0, chunkelen[0], &wg, ch1)
+	go Chunke(str, chunkelen[0], chunkelen[1], &wg, ch2)
+	go Chunke(str, chunkelen[1], chunkelen[2], &wg, ch3)
+	go Chunke(str, chunkelen[2], chunkelen[3], &wg, ch4)
 	
-	// go Chunke(str, 0, chunkelen[0])
-	// go Chunke(str, chunkelen[0], chunkelen[1])
-	// go Chunke(str, chunkelen[1], chunkelen[2])
-	// go Chunke(str, chunkelen[2], chunkelen[3])
 
-	// received := <-ch
-
-	// fmt.Println("Received data from channel:", received)
+	wg.Wait()
 
 	time.Sleep(time.Second)
 
 	takenTime := time.Since(timeStart)
+	receivedData1 := <-ch1
+	receivedData2 := <-ch2
+	receivedData3 := <-ch3
+	receivedData4 := <-ch4
+
+	fmt.Println("Received data from channel1:", receivedData1)
+	fmt.Println("Received data from channel2:", receivedData2)
+	fmt.Println("Received data from channel3:", receivedData3)
+	fmt.Println("Received data from channel4:", receivedData4)
 	fmt.Printf("time: %v \n", takenTime)
 
 }
 
-func Chunke(str string, start int, length int) {
+func Chunke(str string, start int, length int, wg *sync.WaitGroup, ch chan map[string]int) {
+	defer wg.Done()
 
 	chunkeData := make(map[string]int)
 
@@ -78,7 +79,7 @@ func Chunke(str string, start int, length int) {
 			chunkeData["symboles"]++
 		}
 		if str[i] == ('!') || str[i] == ('@') || str[i] == ('#') || str[i] == ('$') || str[i] == ('%') || str[i] == ('^') || str[i] == ('&') || str[i] == ('*') || str[i] == ('~') {
-			chunkeData["specialstr[i]aracters"]++
+			chunkeData["specialCharacters"]++
 		}
 		if str[i] == ('0') || str[i] == ('1') || str[i] == ('2') || str[i] == ('3') || str[i] == ('4') || str[i] == ('5') || str[i] == ('6') || str[i] == ('7') || str[i] == ('8') || str[i] == ('9') {
 			chunkeData["digits"]++
@@ -94,9 +95,15 @@ func Chunke(str string, start int, length int) {
 		}
 	}
 
-	// ch <- chunkeData
-	fmt.Println(chunkeData)
-	time.Sleep(time.Second)
-
+	ch <- chunkeData
+	// fmt.Println(chunkeData)
 
 }
+
+
+
+
+
+
+
+
