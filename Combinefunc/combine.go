@@ -23,8 +23,6 @@ func Combine(str string)  {
 			data["vowels"]++
 		} else if ch == rune('\n') {
 			data["paragraph"]++
-		} else {
-			data["etc"]++
 		}
 	}
 
